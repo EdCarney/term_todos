@@ -6,6 +6,8 @@
 
 static std::string log_level_text_map[] = { "TRACE", "DEBUG", "INFO", "ERROR", "PANIC" };
 
+static std::string rpad(std::string str, int width, char pad);
+
 namespace logger {
 
     enum log_level {
@@ -28,7 +30,6 @@ namespace logger {
         private:
             bool _console_log;
             std::ofstream _log_file;
-            void _print_to_streams(const std::string msg);
     };
 }
 

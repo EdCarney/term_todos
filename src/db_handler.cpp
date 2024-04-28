@@ -46,4 +46,6 @@ namespace db_interface {
         sqlite3_finalize(stmt);
     }
 
+    void db_handler::handle_ret_code(int ret_code) {
+    }
 }

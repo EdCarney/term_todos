@@ -19,9 +19,9 @@ int main(int argc, char* argv[]) {
     logger::logger *lgr = new  logger::logger("test.log", true);
 
     db_interface::db_handler *handler = new db_interface::db_handler("test.db", lgr);
-    todo t = handler->get_todo(0);
+    todo t = handler->get_todo(2);
 
-    std::cout << "id: " << t.id << "todo: " << t.text << std::endl;
+    std::cout << "id: " << t.id << ", todo: " << t.text << std::endl;
 
     return 0;
 }

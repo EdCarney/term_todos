@@ -39,7 +39,8 @@ namespace db_interface {
     }
 
     todo db_handler::get_todo(int id) {
-        const char *cmd = "SELECT rowid,todo FROM todos WHERE rowId = 1;\0";
+        std::string cmd_str = "SELECT rowid,todo FROM todos WHERE rowId = " + std::to_string(id) + ";\0";
+        const char *cmd = cmd_str.c_str();
         string cmd_desc = "get todo with id: " + std::to_string(id);
         sqlite3_stmt *stmt = _execute_cmd(cmd, cmd_desc);
         int todo_id = sqlite3_column_int(stmt, 0);

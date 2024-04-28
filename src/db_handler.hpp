@@ -28,8 +28,8 @@ namespace db_interface {
         private:
             sqlite3 *_db;
             logger::logger *_lgr;
-            void handle_ret_code(int ret_code);
-            void initialize_db();
+            void _initialize_db();
+            void _execute_cmd(const char *cmd, std::string cmd_desc, bool is_critical = false);
     };
 
 }

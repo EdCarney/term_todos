@@ -19,11 +19,18 @@ namespace db_interface {
             exit(1);
         }
 
-        initialize_db();
+        _initialize_db();
     }
 
     db_handler::~db_handler() {
-        handle_ret_code(sqlite3_close(_db));
+        int ret_code = sqlite3_close(_db);
+
+        if (ret_code == SQLITE_OK) {
+            _lgr->log("DB connection closed");
+        } else {
+            _lgr->log("Failure to properly close DB", logger::PANIC);
+            exit(1);
+        }
     }
 
 
@@ -51,29 +58,34 @@ namespace db_interface {
         return 0;
     }
 
-    void db_handler::initialize_db() {
-        sqlite3_stmt *stmt;
+    void db_handler::_initialize_db() {
         const char *cmd = "CREATE TABLE IF NOT EXISTS todos (id INT PRIMARY KEY, todo TEXT);\0";
+        string cmd_desc = "initialize todos table";
+        _execute_cmd(cmd, cmd_desc, true);
+    }
 
+    void db_handler::_execute_cmd(const char *cmd, string cmd_desc, bool is_critical) {
+        sqlite3_stmt *stmt;
         int ret_code = sqlite3_prepare_v2(_db, cmd, -1, &stmt, nullptr);
+        logger::log_level err_level = is_critical ? logger::PANIC : logger::ERROR;
+
         if (ret_code == SQLITE_OK) {
-            _lgr->log("Initialization command prepared.", logger::DEBUG);
+            _lgr->log("Cmd prepared: " + cmd_desc, logger::DEBUG);
         } else {
-            _lgr->log("Failed to prepare initialization command", logger::PANIC);
-            exit(1);
+            _lgr->log("Failed to prepare cmd: " + cmd_desc, err_level);
+            if (is_critical)
+                exit(1);
         }
 
         ret_code = sqlite3_step(stmt);
         if (ret_code == SQLITE_DONE) {
-            _lgr->log("Todos table initialized.");
+            _lgr->log("Cmd executed: " + cmd_desc);
         } else {
-            _lgr->log("Failed to initialize todos table.", logger::PANIC);
-            exit(1);
+            _lgr->log("Failed to execute cmd: " + cmd_desc, err_level);
+            if (is_critical)
+                exit(1);
         }
 
         sqlite3_finalize(stmt);
-    }
-
-    void db_handler::handle_ret_code(int ret_code) {
     }
 }

@@ -39,29 +39,38 @@ namespace db_interface {
     }
 
     todo db_handler::get_todo(int id) {
+        // get data
         std::string cmd_str = "SELECT rowid,todo FROM todos WHERE rowId = " + std::to_string(id) + ";\0";
-        const char *cmd = cmd_str.c_str();
-        string cmd_desc = "get todo with id: " + std::to_string(id);
-        sqlite3_stmt *stmt = _execute_cmd(cmd, cmd_desc);
+        string cmd_desc = "get todo with id " + std::to_string(id);
+        sqlite3_stmt *stmt = _execute_cmd(cmd_str.c_str(), cmd_desc);
+
+        // hydrate object
         int todo_id = sqlite3_column_int(stmt, 0);
         string todo_text = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
         return todo { todo_id, todo_text };
     }
 
-    int db_handler::add_todo(std::string todo_text) {
-        return 0;
+    void db_handler::add_todo(std::string todo_text) {
+        std::string cmd_str = "INSERT INTO todos (todo) VALUES ('" + todo_text + "');\0";
+        string cmd_desc = "create new todo with text '" + todo_text + "'";
+        sqlite3_stmt *smtm = _execute_cmd(cmd_str.c_str(), cmd_desc);
     }
 
-    int db_handler::update_todo(todo new_todo) {
-        return 0;
+    void db_handler::update_todo(todo new_todo) {
+        std::string cmd_str = "update todos set todo = '" + new_todo.text
+            + "' where rowId = " + std::to_string(new_todo.id) + ";\0";
+        string cmd_desc = "updating todo with id " + std::to_string(new_todo.id)
+            + " to have text '" + new_todo.text + "'";
+        sqlite3_stmt *smtm = _execute_cmd(cmd_str.c_str(), cmd_desc);
     }
 
-    int db_handler::delete_todo(int id) {
-        return 0;
+    void db_handler::delete_todo(int id) {
+        std::string cmd_str = "DELETE FROM todos WHERE rowId = " + std::to_string(id) + ";\0";
+        string cmd_desc = "delete todo with id " + std::to_string(id);
+        sqlite3_stmt *smtm = _execute_cmd(cmd_str.c_str(), cmd_desc);
     }
 
-    int db_handler::strikethrough_todo(int id) {
-        return 0;
+    void db_handler::strikethrough_todo(int id) {
     }
 
     void db_handler::_initialize_db() {

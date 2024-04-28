@@ -21,6 +21,10 @@ int main(int argc, char* argv[]) {
     db_interface::db_handler *handler = new db_interface::db_handler("test.db", lgr);
     todo t = handler->get_todo(2);
 
+    handler->add_todo("some new stuff to do");
+    handler->delete_todo(4);
+    handler->update_todo(todo { 5, "another set of things to do" });
+
     std::cout << "id: " << t.id << ", todo: " << t.text << std::endl;
 
     return 0;

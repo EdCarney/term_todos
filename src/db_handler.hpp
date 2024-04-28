@@ -20,10 +20,10 @@ namespace db_interface {
 
             std::vector<todo> get_todos();
             todo get_todo(int id);
-            int add_todo(std::string todo_text);
-            int update_todo(todo new_todo);
-            int delete_todo(int id);
-            int strikethrough_todo(int id);
+            void add_todo(std::string todo_text);
+            void update_todo(todo new_todo);
+            void delete_todo(int id);
+            void strikethrough_todo(int id);
 
         private:
             sqlite3 *_db;

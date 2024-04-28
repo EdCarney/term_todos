@@ -1,3 +1,7 @@
+#ifndef DB_INTERFACE_HPP_DEFINED
+#define DB_INTERFACE_HPP_DEFINED
+
+#include "logger.hpp"
 #include <sqlite3.h>
 #include <string>
 #include <vector>
@@ -11,7 +15,7 @@ namespace db_interface {
 
     class db_handler {
         public:
-            db_handler(const char *db_file);
+            db_handler(const char *db_file, logger::logger *lgr);
             ~db_handler();
 
             std::vector<todo> get_todos();
@@ -23,8 +27,11 @@ namespace db_interface {
 
         private:
             sqlite3 *_db;
+            logger::logger *_lgr;
             void handle_ret_code(int ret_code);
             void initialize_db();
     };
 
 }
+
+#endif // DB_INTERFACE_HPP_DEFINED

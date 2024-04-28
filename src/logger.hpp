@@ -1,4 +1,10 @@
+#ifndef LOGGER_HPP_DEFINED
+#define LOGGER_HPP_DEFINED
+
+#include <fstream>
 #include <string>
+
+static std::string log_level_text_map[] = { "TRACE", "DEBUG", "INFO", "ERROR", "PANIC" };
 
 namespace logger {
 
@@ -10,11 +16,20 @@ namespace logger {
         PANIC
     };
 
+    static const std::string get_log_level_text(log_level level);
+
     class logger {
         public:
-            logger(char *log_file, bool verbose);
+            logger(const char *log_file, bool console_log = false);
             ~logger();
 
-            void log(std::string msg, log_level level = INFO);
+            void log(const std::string msg, log_level level = INFO);
+
+        private:
+            bool _console_log;
+            std::ofstream _log_file;
+            void _print_to_streams(const std::string msg);
     };
 }
+
+#endif // LOGGER_HPP_DEFINED

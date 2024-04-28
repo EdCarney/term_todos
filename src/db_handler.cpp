@@ -7,7 +7,7 @@
 namespace db_interface {
 
     db_handler::db_handler(const char *db_file) {
-        handle_ret_code(sqlite3_open(db_file, &_db));
+        int ret_code = sqlite3_open_v2(db_file, &_db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr);
         initialize_db();
     }
 
@@ -44,9 +44,6 @@ namespace db_interface {
         const char *cmd = "CREATE TABLE IF NOT EXISTS todos (id INT PRIMARY KEY, todo TEXT);\0";
         handle_ret_code(sqlite3_prepare_v2(_db, cmd, -1, &stmt, nullptr));
         sqlite3_finalize(stmt);
-    }
-
-    void db_handler::handle_ret_code(int ret_code) {
     }
 
 }

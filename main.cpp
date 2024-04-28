@@ -1,7 +1,9 @@
-#include <cstdio>
+#include <iostream>
 #include <sqlite3.h>
 #include "src/logger.hpp"
 #include "src/db_handler.hpp"
+
+using db_interface::todo;
 
 int main(int argc, char* argv[]) {
 
@@ -17,8 +19,9 @@ int main(int argc, char* argv[]) {
     logger::logger *lgr = new  logger::logger("test.log", true);
 
     db_interface::db_handler *handler = new db_interface::db_handler("test.db", lgr);
+    todo t = handler->get_todo(0);
 
-    printf("Done!\n");
+    std::cout << "id: " << t.id << "todo: " << t.text << std::endl;
 
     return 0;
 }

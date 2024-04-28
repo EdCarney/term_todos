@@ -39,7 +39,12 @@ namespace db_interface {
     }
 
     todo db_handler::get_todo(int id) {
-        return todo {};
+        const char *cmd = "SELECT rowid,todo FROM todos WHERE rowId = 1;\0";
+        string cmd_desc = "get todo with id: " + std::to_string(id);
+        sqlite3_stmt *stmt = _execute_cmd(cmd, cmd_desc);
+        int todo_id = sqlite3_column_int(stmt, 0);
+        string todo_text = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
+        return todo { todo_id, todo_text };
     }
 
     int db_handler::add_todo(std::string todo_text) {
@@ -61,10 +66,11 @@ namespace db_interface {
     void db_handler::_initialize_db() {
         const char *cmd = "CREATE TABLE IF NOT EXISTS todos (id INT PRIMARY KEY, todo TEXT);\0";
         string cmd_desc = "initialize todos table";
-        _execute_cmd(cmd, cmd_desc, true);
+        sqlite3_stmt *stmt = _execute_cmd(cmd, cmd_desc, true);
+        sqlite3_finalize(stmt);
     }
 
-    void db_handler::_execute_cmd(const char *cmd, string cmd_desc, bool is_critical) {
+    sqlite3_stmt *db_handler::_execute_cmd(const char *cmd, string cmd_desc, bool is_critical) {
         sqlite3_stmt *stmt;
         int ret_code = sqlite3_prepare_v2(_db, cmd, -1, &stmt, nullptr);
         logger::log_level err_level = is_critical ? logger::PANIC : logger::ERROR;
@@ -78,7 +84,7 @@ namespace db_interface {
         }
 
         ret_code = sqlite3_step(stmt);
-        if (ret_code == SQLITE_DONE) {
+        if (ret_code == SQLITE_DONE || ret_code == SQLITE_ROW) {
             _lgr->log("Cmd executed: " + cmd_desc);
         } else {
             _lgr->log("Failed to execute cmd: " + cmd_desc, err_level);
@@ -86,6 +92,6 @@ namespace db_interface {
                 exit(1);
         }
 
-        sqlite3_finalize(stmt);
+        return stmt;
     }
 }

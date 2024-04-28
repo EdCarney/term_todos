@@ -29,7 +29,7 @@ namespace db_interface {
             sqlite3 *_db;
             logger::logger *_lgr;
             void _initialize_db();
-            void _execute_cmd(const char *cmd, std::string cmd_desc, bool is_critical = false);
+            sqlite3_stmt *_execute_cmd(const char *cmd, std::string cmd_desc, bool is_critical = false);
     };
 
 }

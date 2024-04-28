@@ -22,7 +22,7 @@ namespace db_interface {
             int strikethrough_todo(int id);
 
         private:
-            sqlite3 *db;
+            sqlite3 *_db;
             void handle_ret_code(int ret_code);
             void initialize_db();
     };

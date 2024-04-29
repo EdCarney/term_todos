@@ -24,15 +24,17 @@ bool check_cmd_arg(char *cmd, std::vector<std::string> valid_cmds) {
     return false;
 }
 
-void add_todo(db_interface::db_handler *handler, char *cmd_arg) {
-    handler->add_todo((std::string)cmd_arg);
+void add_todo(db_interface::db_handler *handler, char *text) {
+    handler->add_todo((std::string)text);
 }
 
-void delete_todo(db_interface::db_handler *handler, char *cmd_arg) {
-    int id = atoi(cmd_arg);
-    handler->delete_todo(id);
+void delete_todo(db_interface::db_handler *handler, char *id) {
+    handler->delete_todo(atoi(id));
 }
 
+void update_todo(db_interface::db_handler *handler, char *id, char *text) {
+    handler->update_todo({ atoi(id), (std::string)text });
+}
 void print_usage() {
     std::cout << "term-todos is a simple CLI todo tracker" << std::endl;
     std::cout << "\tls/list: lists todos" << std::endl;
@@ -49,12 +51,7 @@ void print_invalid_cmd(char *cmd) {
 int main(int argc, char* argv[]) {
 
     // read arg cmds
-    //  a: add note
-    //  u: update note
-    //  d: delete note
     //  s: strikethrough note
-    //  ls: list notes
-    //
 
     logger::logger *lgr = new  logger::logger("test.log");
     db_interface::db_handler *handler = new db_interface::db_handler("test.db", lgr);
@@ -86,11 +83,18 @@ int main(int argc, char* argv[]) {
             break;
         }
         case 4: {
-            // update
+            char* cmd = argv[1];
+            char* cmd_arg_1 = argv[2];
+            char* cmd_arg_2 = argv[3];
+            if (check_cmd_arg(cmd, { "u", "update" })) {
+                update_todo(handler, cmd_arg_1, cmd_arg_2);
+            } else {
+                print_invalid_cmd(cmd);
+            }
             break;
         }
         default: {
-            // invalid
+            print_usage();
             break;
         }
     }

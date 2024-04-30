@@ -30,6 +30,7 @@ namespace logger {
         private:
             bool _console_log;
             std::ofstream _log_file;
+            void _print_header();
     };
 }
 

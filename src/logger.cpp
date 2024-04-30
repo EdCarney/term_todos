@@ -20,8 +20,10 @@ namespace logger {
     }
     
     logger::logger(const char *log_file, bool console_log) {
-        _log_file.open(log_file);
+        _log_file.open(log_file, std::ofstream::out | std::ofstream::app);
         _console_log = console_log;
+        _print_header();
+        log("Logger initialized.");
     }
 
     logger::~logger() {
@@ -41,4 +43,10 @@ namespace logger {
                   << " " << level_str << " : " << msg << std::endl;
         }
     }
+
+    void logger::_print_header() {
+        std::string header = std::string(40, '-');
+        _log_file << header << std::endl;
+    }
+
 }

@@ -11,7 +11,9 @@ set(Sources
     src/db_handler.hpp
     src/db_handler.cpp
     src/logger.hpp
-    src/logger.cpp)
+    src/logger.cpp
+    src/utilities.hpp
+    src/utilities.cpp)
 
 add_executable(${This} ${Sources})
 target_link_libraries(${This} SQLite::SQLite3)

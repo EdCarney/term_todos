@@ -2,6 +2,7 @@
 #include <vector>
 #include <cstring>
 #include <cstdlib>
+#include <filesystem>
 #include <sqlite3.h>
 #include "src/logger.hpp"
 #include "src/db_handler.hpp"
@@ -53,8 +54,20 @@ int main(int argc, char* argv[]) {
     // read arg cmds
     //  s: strikethrough note
 
-    logger::logger *lgr = new  logger::logger("test.log");
-    db_interface::db_handler *handler = new db_interface::db_handler("test.db", lgr);
+    const char *env_home;
+    std::string log_file = "todos.log", db_file = "todos.db";
+    if (!(env_home = std::getenv("HOME"))) {
+        std::cout << "No $HOME env variable found, DB and log files will be local" << std::endl;
+        env_home = ".";
+    }
+    std::string parent_folder = (std::string)env_home + "/.todos/";
+    std::string log_path = parent_folder +  log_file;
+    std::string db_path = parent_folder + db_file;
+
+    std::filesystem::create_directory(parent_folder);
+
+    logger::logger *lgr = new  logger::logger(log_path.c_str());
+    db_interface::db_handler *handler = new db_interface::db_handler(db_path.c_str(), lgr);
 
     switch (argc) {
         case 1: {

@@ -11,6 +11,7 @@ namespace db_interface {
     struct todo {
         int id;
         std::string text;
+        bool checked;
     };
 
     class db_handler {
@@ -21,7 +22,8 @@ namespace db_interface {
             std::vector<todo> get_todos();
             todo get_todo(int id);
             void add_todo(std::string todo_text);
-            void update_todo(todo new_todo);
+            void update_todo_text(int id, std::string todo_text);
+            void toggle_todo_checked(int id);
             void delete_todo(int id);
             void strikethrough_todo(int id);
 
@@ -32,6 +34,7 @@ namespace db_interface {
             sqlite3_stmt *_prepare_cmd(const char *cmd, std::string cmd_desc, bool is_critical = false);
             int _execute_cmd(sqlite3_stmt *stmt, std::string cmd_desc, bool is_critical = false);
             todo _extract_todo(sqlite3_stmt *stmt);
+            void _update_todo(todo new_todo);
     };
 
 }

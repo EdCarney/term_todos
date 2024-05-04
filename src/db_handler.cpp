@@ -35,7 +35,7 @@ namespace db_interface {
 
     std::vector<todo> db_handler::get_todos() {
         std::vector<todo> todos = std::vector<todo>();
-        std::string cmd_str = "SELECT rowid,todo FROM todos;\0";
+        std::string cmd_str = "SELECT rowid,todo,checked FROM todos;\0";
         string cmd_desc = "get all todos";
         sqlite3_stmt *stmt = _prepare_cmd(cmd_str.c_str(), cmd_desc, true);
 
@@ -46,7 +46,7 @@ namespace db_interface {
     }
 
     todo db_handler::get_todo(int id) {
-        std::string cmd_str = "SELECT rowid,todo FROM todos WHERE rowId = " + std::to_string(id) + ";\0";
+        std::string cmd_str = "SELECT rowid,todo,checked FROM todos WHERE rowId = " + std::to_string(id) + ";\0";
         string cmd_desc = "get todo with id " + std::to_string(id);
         sqlite3_stmt *stmt = _prepare_cmd(cmd_str.c_str(), cmd_desc, true);
         if (_execute_cmd(stmt, cmd_desc, true) != SQLITE_ROW) {
@@ -56,15 +56,28 @@ namespace db_interface {
     }
 
     void db_handler::add_todo(std::string todo_text) {
-        std::string cmd_str = "INSERT INTO todos (todo) VALUES ('" + todo_text + "');\0";
+        std::string cmd_str = "INSERT INTO todos (todo, checked) VALUES ('" + todo_text + "', FALSE);\0";
         string cmd_desc = "create new todo with text '" + todo_text + "'";
         sqlite3_stmt *stmt = _prepare_cmd(cmd_str.c_str(), cmd_desc, true);
         _execute_cmd(stmt, cmd_desc, true);
     }
 
-    void db_handler::update_todo(todo new_todo) {
-        std::string cmd_str = "update todos set todo = '" + new_todo.text
-            + "' where rowId = " + std::to_string(new_todo.id) + ";\0";
+    void db_handler::update_todo_text(int id, std::string todo_text) {
+        todo t = get_todo(id);
+        t.text = todo_text;
+        _update_todo(t);
+    }
+
+    void db_handler::toggle_todo_checked(int id) {
+        todo t = get_todo(id);
+        t.checked = !t.checked;
+        _update_todo(t);
+    }
+
+    void db_handler::_update_todo(todo new_todo) {
+        std::string cmd_str = "UPDATE todos SET todo = '" + new_todo.text
+            + "', checked = " + std::to_string(new_todo.checked) +
+            + " WHERE rowId = " + std::to_string(new_todo.id) + ";\0";
         string cmd_desc = "updating todo with id " + std::to_string(new_todo.id)
             + " to have text '" + new_todo.text + "'";
         sqlite3_stmt *stmt = _prepare_cmd(cmd_str.c_str(), cmd_desc, true);
@@ -78,11 +91,8 @@ namespace db_interface {
         _execute_cmd(stmt, cmd_desc, true);
     }
 
-    void db_handler::strikethrough_todo(int id) {
-    }
-
     void db_handler::_initialize_db() {
-        const char *cmd = "CREATE TABLE IF NOT EXISTS todos (id INT PRIMARY KEY, todo TEXT);\0";
+        const char *cmd = "CREATE TABLE IF NOT EXISTS todos (id INT PRIMARY KEY, todo TEXT, checked BOOL);\0";
         string cmd_desc = "initialize todos table";
         sqlite3_stmt *stmt = _prepare_cmd(cmd, cmd_desc, true);
         _execute_cmd(stmt, cmd_desc, true);
@@ -123,6 +133,7 @@ namespace db_interface {
     todo db_handler::_extract_todo(sqlite3_stmt *stmt) {
         int todo_id = sqlite3_column_int(stmt, 0);
         string todo_text = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
-        return todo { todo_id, todo_text };
+        bool checked = sqlite3_column_int(stmt, 2);
+        return todo { todo_id, todo_text, checked };
     }
 }

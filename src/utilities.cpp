@@ -19,9 +19,9 @@ namespace utilities {
         return full_path;
     }
 
-    bool string_in_set(const char *val, std::vector<std::string> valid_vals) {
+    bool string_in_set(std::string val, std::vector<std::string> valid_vals) {
         for (auto &valid_val : valid_vals) {
-            if (std::strcmp(val, valid_val.c_str()) == 0) {
+            if (std::strcmp(val.c_str(), valid_val.c_str()) == 0) {
                 return true;
             }
         }

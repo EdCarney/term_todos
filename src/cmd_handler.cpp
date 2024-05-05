@@ -17,11 +17,11 @@ namespace cmd_interface {
 
     void cmd_handler::_print_usage(std::vector<std::string> args) {
         std::cout << "term-todos is a simple CLI todo tracker" << std::endl;
-        std::cout << "\tls/list:\t\tlists todos" << std::endl;
-        std::cout << "\ta[dd] TODO_TEXT:\t\tadds a new todo" << std::endl;
-        std::cout << "\tc[heck] TODO_ID:\t\ttoggles check box for todo by id" << std::endl;
-        std::cout << "\td[elete] TODO_ID:\t\tdeletes a todo by id" << std::endl;
-        std::cout << "\tu[pdate] TODO_ID\t\tTODO_TEXT: updates a todo with new text" << std::endl;
+        std::cout << "\tls/list\t\t\t\tlists todos" << std::endl;
+        std::cout << "\ta[dd] TODO_TEXT\t\t\tadds a new todo" << std::endl;
+        std::cout << "\tc[heck] TODO_ID\t\t\ttoggles check box for todo by id" << std::endl;
+        std::cout << "\td[elete] TODO_ID\t\tdeletes a todo by id" << std::endl;
+        std::cout << "\tu[pdate] TODO_ID TODO_TEXT\tupdates a todo with new text" << std::endl;
     }
 
     void cmd_handler::_print_all_todos(std::vector<std::string> args) {
@@ -33,23 +33,23 @@ namespace cmd_interface {
     }
 
     void cmd_handler::_add_todo(std::vector<std::string> args) {
-        std::string text = args.at(0);
+        std::string text = args.at(1);
         _handler->add_todo(text);
     }
 
     void cmd_handler::_delete_todo(std::vector<std::string> args) {
-        int id = std::atoi(args.at(0).c_str());
+        int id = std::atoi(args.at(1).c_str());
         _handler->delete_todo(id);
     }
 
     void cmd_handler::_update_todo_text(std::vector<std::string> args) {
-        int id = std::atoi(args.at(0).c_str());
-        std::string text = args.at(1);
+        int id = std::atoi(args.at(1).c_str());
+        std::string text = args.at(2);
         _handler->update_todo_text(id, text);
     }
 
     void cmd_handler::_toggle_todo_checked(std::vector<std::string> args) {
-        int id = std::atoi(args.at(0).c_str());
+        int id = std::atoi(args.at(1).c_str());
         _handler->toggle_todo_checked(id);
     }
 
@@ -58,26 +58,23 @@ namespace cmd_interface {
     }
 
     std::vector<cmd_def> cmd_handler::_cmd_defs {
-        { 1, { }, { _print_usage } },
-        { 2, { { "l", "ls", "list" } }, { _print_all_todos, _print_invalid_cmd } },
-        { 3, { { "a", "add" }, { "d", "delete" }, { "c", "check" } }, { _add_todo, _delete_todo, _toggle_todo_checked, _print_invalid_cmd } },
-        { 4, { { "u", "update" } }, { _update_todo_text, _print_invalid_cmd } },
+        { 0, { }, { _print_usage } },
+        { 1, { { "l", "ls", "list" } }, { _print_all_todos, _print_invalid_cmd } },
+        { 2, { { "a", "add" }, { "d", "delete" }, { "c", "check" } }, { _add_todo, _delete_todo, _toggle_todo_checked, _print_invalid_cmd } },
+        { 3, { { "u", "update" } }, { _update_todo_text, _print_invalid_cmd } },
     };
 
     void cmd_handler::handle_cmd(int argc, char *argv[]) {
-        std::vector<std::string> args(argc);
+        std::vector<std::string> args;
 
         // create new args w/out app name
-        int i = 0;
-        while (++i < argc) {
-            args[i] = argv[i];
+        int i = 1;
+        while (i < argc) {
+            std::cout << i << " " << argv[i] << std::endl;
+            args.push_back(argv[i++]);
         }
 
-        if (0 == args.size()) {
-            return _print_usage(args);
-        }
-
-        std::string arg = args.at(0);
+        std::string arg = args.empty() ? "" : args.at(0);
         for (auto def : _cmd_defs) {
             if (args.size() != def.num_args) {
                 continue;

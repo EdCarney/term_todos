@@ -57,11 +57,27 @@ namespace cmd_interface {
         std::cout << "Invalid command: " << args.at(0) << std::endl;
     }
 
+    cmd_sequences arg_0_cmd_seqs = { };
+
+    cmd_sequences arg_1_cmd_seqs = {
+        { "l", "ls", "list" }
+    };
+
+    cmd_sequences arg_2_cmd_seqs = {
+        { "a", "add" },
+        { "d", "delete" },
+        { "c", "check" }
+    };
+
+    cmd_sequences arg_3_cmd_seqs = {
+        { "u", "update" }
+    };
+
     std::vector<cmd_def> cmd_handler::_cmd_defs {
-        { 0, { }, { _print_usage } },
-        { 1, { { "l", "ls", "list" } }, { _print_all_todos, _print_invalid_cmd } },
-        { 2, { { "a", "add" }, { "d", "delete" }, { "c", "check" } }, { _add_todo, _delete_todo, _toggle_todo_checked, _print_invalid_cmd } },
-        { 3, { { "u", "update" } }, { _update_todo_text, _print_invalid_cmd } },
+        { 0, arg_0_cmd_seqs, { _print_usage } },
+        { 1, arg_1_cmd_seqs, { _print_all_todos, _print_invalid_cmd } },
+        { 2, arg_2_cmd_seqs, { _add_todo, _delete_todo, _toggle_todo_checked, _print_invalid_cmd } },
+        { 3, arg_3_cmd_seqs, { _update_todo_text, _print_invalid_cmd } },
     };
 
     void cmd_handler::handle_cmd(int argc, char *argv[]) {
@@ -75,15 +91,22 @@ namespace cmd_interface {
 
         std::string arg = args.empty() ? "" : args.at(0);
         for (auto def : _cmd_defs) {
+
+            // find the cmd def with the correct # of args
             if (args.size() != def.num_args) {
                 continue;
             }
+
+            // try all the cmd seqs
             i = -1;
             while (++i < def.sequences.size()) {
                 if (utilities::string_in_set(arg, def.sequences.at(i))) {
                     return def.functions.at(i)(args);
                 }
             }
+            
+            // if none of the cmd seqs work then default to the
+            // last func pointer
             return def.functions.at(i)(args);
         }
     }

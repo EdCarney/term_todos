@@ -70,7 +70,6 @@ namespace cmd_interface {
         // create new args w/out app name
         int i = 1;
         while (i < argc) {
-            std::cout << i << " " << argv[i] << std::endl;
             args.push_back(argv[i++]);
         }
 

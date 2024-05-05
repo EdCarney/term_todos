@@ -38,8 +38,10 @@ namespace cmd_interface {
     }
 
     void cmd_handler::_delete_todo(std::vector<std::string> args) {
-        int id = std::atoi(args.at(1).c_str());
-        _handler->delete_todo(id);
+        for (int i = 1; i < args.size(); i++) {
+            int id = std::atoi(args.at(i).c_str());
+            _handler->delete_todo(id);
+        }
     }
 
     void cmd_handler::_update_todo_text(std::vector<std::string> args) {
@@ -65,7 +67,6 @@ namespace cmd_interface {
 
     cmd_sequences arg_2_cmd_seqs = {
         { "a", "add" },
-        { "d", "delete" },
         { "c", "check" }
     };
 
@@ -73,11 +74,16 @@ namespace cmd_interface {
         { "u", "update" }
     };
 
+    cmd_sequences arg_any_cmd_seqs = {
+        { "d", "delete" },
+    };
+
     std::vector<cmd_def> cmd_handler::_cmd_defs {
-        { 0, arg_0_cmd_seqs, { _print_usage } },
-        { 1, arg_1_cmd_seqs, { _print_all_todos, _print_invalid_cmd } },
-        { 2, arg_2_cmd_seqs, { _add_todo, _delete_todo, _toggle_todo_checked, _print_invalid_cmd } },
-        { 3, arg_3_cmd_seqs, { _update_todo_text, _print_invalid_cmd } },
+        { 0,  arg_0_cmd_seqs,   { _print_usage } },
+        { 1,  arg_1_cmd_seqs,   { _print_all_todos } },
+        { 2,  arg_2_cmd_seqs,   { _add_todo, _toggle_todo_checked } },
+        { 3,  arg_3_cmd_seqs,   { _update_todo_text } },
+        { -1, arg_any_cmd_seqs, { _delete_todo } },
     };
 
     void cmd_handler::handle_cmd(int argc, char *argv[]) {
@@ -90,8 +96,7 @@ namespace cmd_interface {
         }
 
         std::string arg = args.empty() ? "" : args.at(0);
-        for (auto def : _cmd_defs) {
-
+        for (auto &def : _cmd_defs) {
             // find the cmd def with the correct # of args
             if (args.size() != def.num_args) {
                 continue;
@@ -105,9 +110,18 @@ namespace cmd_interface {
                 }
             }
             
-            // if none of the cmd seqs work then default to the
-            // last func pointer
-            return def.functions.at(i)(args);
         }
+
+        // handle cases with any arg count
+        auto &def = _cmd_defs.back();
+        i = -1;
+        while (++i < def.sequences.size()) {
+            if (utilities::string_in_set(arg, def.sequences.at(i))) {
+                return def.functions.at(i)(args);
+            }
+        }
+        
+        // if none of the cmd seqs work then default to invalid cmd
+        return _print_invalid_cmd(args);
     }
 }

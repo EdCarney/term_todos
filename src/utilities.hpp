@@ -11,7 +11,7 @@ namespace utilities {
     std::string get_app_file_path(std::string file_name);
 
     // validates if the provided val is the set of valid vals
-    bool string_in_set(const char *val, std::vector<std::string> valid_vals);
+    bool string_in_set(std::string, std::vector<std::string> valid_vals);
 }
 
 #endif // UTILITIES_HPP_DEFINED
